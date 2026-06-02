@@ -1,13 +1,13 @@
-const levels = {
-  safe:    { label: 'safe',    style: 'badge-success' },
-  caution: { label: 'caution', style: 'badge-warning' },
-  avoid:   { label: 'avoid',   style: 'badge-error'   },
+const config = {
+  safe:    { label: 'safe',    className: 'badge-success' },
+  caution: { label: 'caution', className: 'badge-warning' },
+  avoid:   { label: 'avoid',   className: 'badge-error'   },
 }
 
 export default function SafetyBadge({ level = 'safe' }) {
-  const { label, style } = levels[level] ?? levels.safe
+  const { label, className } = config[level] ?? config.safe
   return (
-    <span className={`badge ${style} badge-sm font-medium`}>
+    <span className={`badge ${className} badge-sm font-medium`}>
       {label}
     </span>
   )

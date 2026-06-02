@@ -1,25 +1,36 @@
 import { useState } from 'react'
 import UploadZone from '../components/UploadZone'
 import { useOCR } from '../hooks/useOCR'
+import { useAnalysis } from '../hooks/useAnalysis'
+import { useNavigate } from 'react-router-dom'
+import { useAppStore } from '../../../store/useAppStore'
 
 export default function ScanPage() {
   const [selectedImage, setSelectedImage] = useState(null)
-  const { scanImage, clearOCR, ocrText, progress, loading, error } = useOCR()
+  const { scanImage, clearOCR, ocrText, progress, loading: ocrLoading, error: ocrError } = useOCR()
+  const { analyze, clearAnalysis, ingredients, loading: analysisLoading, error: analysisError } = useAnalysis()
+  const setCurrentScan = useAppStore((s) => s.setCurrentScan)
+  const navigate = useNavigate()
 
   const handleImageSelected = (file) => {
-    // clear previous scan state whenever image changes
     clearOCR()
+    clearAnalysis()
     setSelectedImage(file)
-  }
-
-  const handleScan = async () => {
-    if (!selectedImage) return
-    await scanImage(selectedImage)
   }
 
   const handleScanAnother = () => {
     clearOCR()
+    clearAnalysis()
     setSelectedImage(null)
+  }
+
+  const handleAnalyze = async () => {
+    if (!ocrText) return
+    const result = await analyze(ocrText)
+    if (result) {
+      setCurrentScan({ ingredients: result, scannedAt: new Date().toISOString() })
+      navigate('/results')
+    }
   }
 
   return (
@@ -39,10 +50,10 @@ export default function ScanPage() {
         />
 
         {/* scan button */}
-        {selectedImage && !loading && !ocrText && (
+        {selectedImage && !ocrLoading && !ocrText && (
           <div className="flex flex-col items-center gap-1.5">
             <button
-              onClick={handleScan}
+              onClick={() => scanImage(selectedImage)}
               className="btn btn-primary w-full active:scale-[0.98] transition-all duration-150"
             >
               scan ingredients 🔍
@@ -53,8 +64,8 @@ export default function ScanPage() {
           </div>
         )}
 
-        {/* progress */}
-        {loading && (
+        {/* ocr progress */}
+        {ocrLoading && (
           <div className="flex flex-col items-center gap-3 py-4">
             <span className="loading loading-spinner loading-md text-primary" />
             <p className="text-sm text-base-content/50">
@@ -68,19 +79,19 @@ export default function ScanPage() {
           </div>
         )}
 
-        {/* error */}
-        {error && (
+        {/* ocr error */}
+        {ocrError && (
           <div className="alert alert-error text-sm rounded-xl">
-            <span>{error}</span>
+            <span>{ocrError}</span>
           </div>
         )}
 
-        {/* ocr result */}
-        {ocrText && !loading && (
+        {/* ocr result + analyze */}
+        {ocrText && !ocrLoading && (
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-success">
-                text extracted
+                text extracted ✓
               </p>
               <button
                 onClick={handleScanAnother}
@@ -94,13 +105,26 @@ export default function ScanPage() {
               {ocrText}
             </div>
 
-            <button className="btn btn-primary w-full active:scale-[0.98] transition-all duration-150">
-              analyze ingredients
+            {/* analysis error */}
+            {analysisError && (
+              <div className="alert alert-error text-sm rounded-xl">
+                <span>{analysisError}</span>
+              </div>
+            )}
+
+            <button
+              onClick={handleAnalyze}
+              disabled={analysisLoading}
+              className="btn btn-primary w-full active:scale-[0.98] transition-all duration-150"
+            >
+              {analysisLoading
+                ? <span className="loading loading-spinner loading-sm" />
+                : 'analyse ingredients 🧪'}
             </button>
           </div>
         )}
-      </div>
 
+      </div>
     </div>
   )
 }
