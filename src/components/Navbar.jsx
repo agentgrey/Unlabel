@@ -1,6 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../features/auth/hooks/useAuth'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 import ThemeToggle from './ThemeToggle'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function Navbar() {
   const { user, signOut } = useAuth()
@@ -12,54 +21,42 @@ export default function Navbar() {
   }
 
   return (
-    <div className="navbar bg-base-100 border-b border-base-200 px-6 h-16">
-      <div className="flex-1">
-        <Link
-          to="/"
-          className="flex flex-col leading-tight group"
-        >
-          <span className="text-xl font-bold tracking-tight">
+    <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+      <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+        <Link to="/" className="group flex flex-col leading-tight">
+          <span className="font-bold text-lg tracking-tight group-hover:text-primary transition-colors duration-200">
             Unlabel
           </span>
-          <span className="text-[11px] text-base-content/40">
+          <span className="text-[10px] text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-200">
             the truth behind every ingredient
           </span>
         </Link>
-      </div>
 
-      <div className="flex-none flex items-center gap-3">
-        <ThemeToggle />
-        {user && (
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="w-9 h-9 rounded-full bg-primary text-primary-content flex items-center justify-center font-semibold text-sm cursor-pointer hover:opacity-80 active:scale-95 transition-all duration-150 select-none"
-            >
-              {user.email?.[0].toUpperCase()}
-            </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content menu bg-base-100 rounded-xl border border-base-200 z-50 w-52 p-2 mt-2"
-            >
-              <li>
-                <span className="text-xs text-base-content/40 truncate block cursor-default">
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center hover:opacity-80 active:scale-95 transition-all duration-150 cursor-pointer ml-1">
+                  {user.email?.[0].toUpperCase()}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal truncate">
                   {user.email}
-                </span>
-              </li>
-              <div className="divider my-0.5 h-px bg-base-200" />
-              <li>
-                <button
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="text-sm text-error hover:bg-error/10 rounded-lg px-2 py-1.5 w-full text-left transition-colors duration-150 cursor-pointer"
+                  className="text-destructive focus:text-destructive cursor-pointer"
                 >
                   sign out
-                </button>
-              </li>
-            </ul>
-          </div>
-        )}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
-    </div>
+    </header>
   )
 }

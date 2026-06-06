@@ -1,14 +1,18 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import UploadZone from '../components/UploadZone'
 import { useOCR } from '../hooks/useOCR'
 import { useAnalysis } from '../hooks/useAnalysis'
-import { useNavigate } from 'react-router-dom'
-import { useAppStore } from '../../../store/useAppStore'
+import { useAppStore } from '@/store/useAppStore'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import Navbar from '@/components/Navbar'
 
 export default function ScanPage() {
   const [selectedImage, setSelectedImage] = useState(null)
   const { scanImage, clearOCR, ocrText, progress, loading: ocrLoading, error: ocrError } = useOCR()
-  const { analyze, clearAnalysis, ingredients, loading: analysisLoading, error: analysisError } = useAnalysis()
+  const { analyze, clearAnalysis, loading: analysisLoading, error: analysisError } = useAnalysis()
   const setCurrentScan = useAppStore((s) => s.setCurrentScan)
   const navigate = useNavigate()
 
@@ -34,59 +38,52 @@ export default function ScanPage() {
   }
 
   return (
-    <div className="h-full flex flex-col max-w-2xl mx-auto px-4 py-8 gap-6">
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 flex flex-col gap-6">
 
-      <div>
-        <h1 className="text-2xl font-bold">scan a product</h1>
-        <p className="text-base-content/50 text-sm mt-1">
-          upload a photo of the ingredients list — we'll do the rest
-        </p>
-      </div>
+        <div>
+          <h1 className="text-2xl font-bold">scan a product</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            upload a photo of the ingredients list — we'll do the rest
+          </p>
+        </div>
 
-      <div className="flex-1 flex flex-col gap-4 min-h-0">
         <UploadZone
           onImageSelected={handleImageSelected}
           externalClear={!selectedImage}
         />
 
-        {/* scan button */}
         {selectedImage && !ocrLoading && !ocrText && (
-          <div className="flex flex-col items-center gap-1.5">
-            <button
+          <div className="flex flex-col items-center gap-2">
+            <Button
               onClick={() => scanImage(selectedImage)}
-              className="btn btn-primary w-full active:scale-[0.98] transition-all duration-150"
+              className="w-full"
             >
-              scan ingredients 🔍
-            </button>
-            <p className="text-xs text-base-content/30">
+              scan ingredients
+            </Button>
+            <p className="text-xs text-muted-foreground">
               we'll read the text and break down every ingredient
             </p>
           </div>
         )}
 
-        {/* ocr progress */}
         {ocrLoading && (
           <div className="flex flex-col items-center gap-3 py-4">
-            <span className="loading loading-spinner loading-md text-primary" />
-            <p className="text-sm text-base-content/50">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-muted-foreground">
               reading the label... {progress}%
             </p>
-            <progress
-              className="progress progress-primary w-full max-w-xs"
-              value={progress}
-              max="100"
-            />
+            <Progress value={progress} className="w-full max-w-xs h-1.5" />
           </div>
         )}
 
-        {/* ocr error */}
         {ocrError && (
-          <div className="alert alert-error text-sm rounded-xl">
-            <span>{ocrError}</span>
-          </div>
+          <Alert variant="destructive">
+            <AlertDescription className="text-sm">{ocrError}</AlertDescription>
+          </Alert>
         )}
 
-        {/* ocr result + analyze */}
         {ocrText && !ocrLoading && (
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
@@ -95,36 +92,40 @@ export default function ScanPage() {
               </p>
               <button
                 onClick={handleScanAnother}
-                className="text-xs text-base-content/30 hover:text-primary underline underline-offset-2 cursor-pointer transition-colors duration-150"
+                className="text-xs text-muted-foreground hover:text-primary underline underline-offset-2 cursor-pointer transition-colors duration-150"
               >
                 scan another
               </button>
             </div>
 
-            <div className="bg-base-200 rounded-xl p-4 text-xs text-base-content/60 font-mono leading-relaxed max-h-36 overflow-y-auto">
+            <div className="bg-muted rounded-xl p-4 text-xs text-muted-foreground font-mono leading-relaxed max-h-36 overflow-y-auto">
               {ocrText}
             </div>
 
-            {/* analysis error */}
             {analysisError && (
-              <div className="alert alert-error text-sm rounded-xl">
-                <span>{analysisError}</span>
-              </div>
+              <Alert variant="destructive">
+                <AlertDescription className="text-sm">
+                  {analysisError}
+                </AlertDescription>
+              </Alert>
             )}
 
-            <button
+            <Button
               onClick={handleAnalyze}
               disabled={analysisLoading}
-              className="btn btn-primary w-full active:scale-[0.98] transition-all duration-150"
+              className="w-full"
             >
               {analysisLoading
-                ? <span className="loading loading-spinner loading-sm" />
+                ? <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    analysing...
+                  </span>
                 : 'analyse ingredients 🧪'}
-            </button>
+            </Button>
           </div>
         )}
 
-      </div>
+      </main>
     </div>
   )
 }

@@ -3,16 +3,17 @@ import LoginPage from '../features/auth/pages/LoginPage'
 import ScanPage from '../features/scan/pages/ScanPage'
 import ResultsPage from '../features/results/pages/ResultsPage'
 import ProtectedRoute from './ProtectedRoute'
-import Navbar from '../components/Navbar'
 import { useAuth } from '../features/auth/hooks/useAuth'
-import Spinner from '../components/Spinner'
 
 function AppLayout() {
   const { loading } = useAuth()
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-base-100">
-      <Spinner text="loading..." />
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">loading...</p>
+      </div>
     </div>
   )
 
@@ -21,22 +22,12 @@ function AppLayout() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={
         <ProtectedRoute>
-          <div className="min-h-screen flex flex-col bg-base-100">
-            <Navbar />
-            <main className="flex-1 overflow-hidden">
-              <ScanPage />
-            </main>
-          </div>
+          <ScanPage />
         </ProtectedRoute>
       } />
       <Route path="/results" element={
         <ProtectedRoute>
-          <div className="min-h-screen flex flex-col bg-base-100">
-            <Navbar />
-            <main className="flex-1 overflow-hidden">
-              <ResultsPage />
-            </main>
-          </div>
+          <ResultsPage />
         </ProtectedRoute>
       } />
     </Routes>
@@ -46,7 +37,7 @@ function AppLayout() {
 export default function Router() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-base-100">
+      <div className="min-h-screen bg-background">
         <AppLayout />
       </div>
     </BrowserRouter>

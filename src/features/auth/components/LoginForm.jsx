@@ -1,21 +1,24 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 const copy = {
   signIn: {
     heading: 'welcome back ✌️',
     sub: "let's see what's in your food today",
-    btn: 'Sign in',
-    toggle: "New here?",
-    toggleBtn: 'Create an account',
+    btn: 'sign in',
+    toggle: "new here?",
+    toggleBtn: 'create an account',
   },
   signUp: {
     heading: 'welcome aboard 🚀',
     sub: 'join the ones who actually read labels',
-    btn: 'Create account',
-    toggle: 'Already one of us?',
-    toggleBtn: 'Sign in',
+    btn: 'create account',
+    toggle: 'already one of us?',
+    toggleBtn: 'sign in',
   },
 }
 
@@ -58,75 +61,71 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="card bg-base-100 border border-base-200 w-full max-w-sm shadow-sm">
-      <div className="card-body gap-4 p-6">
+    <div className="w-full max-w-sm border border-border rounded-2xl p-6 bg-card shadow-sm flex flex-col gap-5">
+      <div>
+        <h2 className="text-2xl font-bold">{current.heading}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{current.sub}</p>
+      </div>
 
-        <div>
-          <h2 className="text-2xl font-bold">{current.heading}</h2>
-          <p className="text-sm text-base-content/50 mt-1">{current.sub}</p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs text-muted-foreground">email</label>
+          <Input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-base-content/50">email</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              className="input input-bordered input-sm w-full focus:outline-primary transition-all duration-150"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-            />
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs text-muted-foreground">password</label>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+            minLength={6}
+          />
+        </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-base-content/50">password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="input input-bordered input-sm w-full focus:outline-primary transition-all duration-150"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              required
-              minLength={6}
-            />
-          </div>
+        {error && (
+          <Alert variant="destructive" className="py-2">
+            <AlertDescription className="text-xs">{error}</AlertDescription>
+          </Alert>
+        )}
 
-          {error && (
-            <div className="alert alert-error py-2 text-xs rounded-xl">
-              <span>{error}</span>
-            </div>
-          )}
-          {message && (
-            <div className="alert alert-success py-2 text-xs rounded-xl">
-              <span>{message}</span>
-            </div>
-          )}
+        {message && (
+          <Alert className="py-2 border-success/30 bg-success/5">
+            <AlertDescription className="text-xs text-success">
+              {message}
+            </AlertDescription>
+          </Alert>
+        )}
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-sm mt-1 active:scale-95 transition-all duration-150"
-            disabled={loading}
-          >
-            {loading
-              ? <span className="loading loading-spinner loading-xs" />
-              : current.btn}
-          </button>
-        </form>
+        <Button type="submit" className="w-full mt-1" disabled={loading}>
+          {loading
+            ? <span className="flex items-center gap-2">
+                <span className="w-3 h-3 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                hold on...
+              </span>
+            : current.btn}
+        </Button>
+      </form>
 
-        <p className="text-xs text-center text-base-content/40">
-          {current.toggle}{' '}
-          <button
-            onClick={handleToggle}
-            className="text-primary underline underline-offset-2 hover:text-primary/70 cursor-pointer transition-colors duration-150"
-          >
-            {current.toggleBtn}
-          </button>
-        </p>
-
-      </div>
+      <p className="text-xs text-center text-muted-foreground">
+        {current.toggle}{' '}
+        <button
+          onClick={handleToggle}
+          className="text-primary underline underline-offset-2 hover:text-primary/70 cursor-pointer transition-colors duration-150"
+        >
+          {current.toggleBtn}
+        </button>
+      </p>
     </div>
   )
 }
